@@ -57,6 +57,8 @@ type Command struct {
 	// Dynamic
 	Dynamic func(name string) (bool, error)
 
+	FindHookFn func(cmd *Command, args []string)
+
 	// Expected arguments
 	Args PositionalArgs
 
@@ -528,6 +530,10 @@ func (c *Command) Find(args []string) (*Command, []string, error) {
 			return c, innerArgs, nil
 		}
 		nextSubCmd := argsWOflags[0]
+
+		if c.FindHookFn != nil {
+			c.FindHookFn(c, argsWOflags)
+		}
 
 		cmd, err := c.findNext(nextSubCmd)
 		if err != nil {
